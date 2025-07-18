@@ -4,11 +4,11 @@ import app from "./app.js";
 // Load environment variables from .env file
 
 dotenv.config();
-console.log("MONGO_URI:", process.env.MONGO_URI);
+
 connectDB() 
     .then(() => {
       app.listen(process.env.PORT || 8000, () => {
-          console.log(`Server is running on port ${process.env.PORT || 8000}`);
+          console.log(`(main index file) Server is running on port ${process.env.PORT || 8000}`);
       });
     })
     .catch((error) => {

@@ -10,7 +10,8 @@ const asynchandler = (requestHandler) => {
 export default asynchandler;
 //  export {asynchandler}; another way to export 
 
-// this is try catch method
+
+//  this is try catch method for async handler
 
 // const asynchandler = (fn) => async (err,req,res,next) => {
 //     try {
@@ -23,5 +24,3 @@ export default asynchandler;
 //         });
 //     }
 // }
-
-

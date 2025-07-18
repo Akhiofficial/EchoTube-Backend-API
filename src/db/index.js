@@ -8,7 +8,7 @@ const connectDB = async () => {
             Database Host: ${connectionInstance.connection.host}`);
             console.log(connectionInstance);
     } catch (error) {
-        console.error("Database connection failed:", error);
+        console.error("Database  connection failed from db/index.js file:", error);
         process.exit(1);  
     }
 }

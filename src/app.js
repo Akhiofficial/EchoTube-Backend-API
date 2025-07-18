@@ -6,8 +6,9 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*', // Allow all origins by default
+    origin: process.env.CORS_ORIGIN || '*', // * represent Allow all origins by default
     credentials: true, // Allow credentials if needed
+
 }));
 
 //for json parsing
@@ -22,7 +23,8 @@ app.use(express.urlencoded({
 // for pdf image etc parsing
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
-// for cookie parsing 
+// for cookie parsing to access cookies in request 
 app.use(cookieParser());
+
 
 export default app;
