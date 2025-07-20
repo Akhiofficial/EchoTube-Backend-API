@@ -1,3 +1,5 @@
+// Api response Template 
+
 class ApiResponse {
     constructor(stausCode, message = "Success", data) {
         this.stausCode,
