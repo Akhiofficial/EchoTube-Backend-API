@@ -1,4 +1,4 @@
-const asynchandler = (requestHandler) => {
+const asyncHandler = (requestHandler) => {
     return (req,res,next) => {
         Promise.resolve(requestHandler(req,res,next)).catch((err) => 
             next(err))
@@ -7,7 +7,7 @@ const asynchandler = (requestHandler) => {
 
 
 
-export default asynchandler;
+export default asyncHandler;
 //  export {asynchandler}; another way to export 
 
 
