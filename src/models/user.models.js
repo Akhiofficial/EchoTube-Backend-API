@@ -26,6 +26,9 @@ const userSchema = new Schema({
         required: true,
         trim: true
     },
+    contactNumber: {
+        type: Number
+    },
     password: {
         type: String,
         required: [true, "Password is required"],
@@ -99,4 +102,5 @@ userSchema.methods.genrateRefreshToken = function () {
 
 
 
-export const User = mongoose.model("User", userSchema);
+// export const User = mongoose.model("User", userSchema);
+export default User
