@@ -1,14 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { use } from "react";
+
 
 
 
 const userSchema = new Schema({
     name: {
         type: String,
-        required: true,
         unique: true,
         lowercase: true,
         trim: true,
@@ -76,7 +75,7 @@ userSchema.methods.genrateAccessToken = function () {
         id: this._id,
         email: this.email,
         username: this.username,
-        fullName: this.fullName
+        fullName: this.fullName,
     },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -102,5 +101,4 @@ userSchema.methods.genrateRefreshToken = function () {
 
 
 
-// export const User = mongoose.model("User", userSchema);
-export default User
+export const User = mongoose.model("User", userSchema);
