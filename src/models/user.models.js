@@ -8,10 +8,10 @@ import bcrypt from "bcrypt";
 const userSchema = new Schema({
     name: {
         type: String,
-        unique: true,
+        // unique: false,
         lowercase: true,
         trim: true,
-        index: true
+        // index: true
     },
     email: {
         type: String,
