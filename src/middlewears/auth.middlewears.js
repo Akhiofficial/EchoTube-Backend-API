@@ -4,19 +4,17 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/user.models.js';
 
 
-export const verifyJWT = asyncHandler(async (req, _, next) => {
-   
+export const verifyJWT = asyncHandler(async (req, _, next) => { //res to _ 
     try {
-        const token = req.coookies?.accessToken || req.headers
-        ("Authorization")?.replace("Bearer ", "");
-    
+       const token = req.cookies?.accessToken || req.headers['authorization']?.replace("Bearer ", "");
         if (!token) {
             throw new ApiError(401, "You are not authorized to access this resource");
         }
     
         const decodedToken =  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        
-       const user =  await User.findById(decodedToken?._id).select(
+
+        // console.log("Decoded token:", decodedToken); we use to debug the decoded token
+       const user =  await User.findById(decodedToken?.id).select(
             "-password -refreshToken"
         ) // value geting from model 
     

@@ -7,12 +7,11 @@ import bcrypt from "bcrypt";
 
 const userSchema = new Schema({
     name: {
-        type: String,
-        // unique: false,
-        lowercase: true,
-        trim: true,
-        // index: true
-    },
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true,
+},
     email: {
         type: String,
         required: true,
@@ -69,7 +68,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 
 // it generates the Access Token for  user
-userSchema.methods.genrateAccessToken = function () {
+userSchema.methods.generateAccessToken = function () {
     // this is payload come from DB
     return jwt.sign({
         id: this._id,
@@ -82,11 +81,11 @@ userSchema.methods.genrateAccessToken = function () {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
         }
     )
-
+    
 }
 
 // it generates the Refresh Token for user
-userSchema.methods.genrateRefreshToken = function () {
+userSchema.methods.generateRefreshToken = function () {
     return jwt.sign({
         id: this._id,
     },
@@ -95,6 +94,7 @@ userSchema.methods.genrateRefreshToken = function () {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
         }
     )
+    
 }
 
 

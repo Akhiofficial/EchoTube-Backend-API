@@ -20,6 +20,7 @@ const generatesAccessTokenAndRefreshToken = async (userId) => {
         await user.save({ validateBeforeSave: false }); // save the user with refresh token // save in database
         return { accessToken, refreshToken }; // return the tokens
     } catch (error) {
+        console.log("Token generation error:", error); // shows the error
         throw new ApiError(500, "Internal server error while generating tokens");
     }
 };
@@ -36,7 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // remove pass and refresh token feild
     // check for user creation
 
-    const { fullName, email, password, username, contactNumber } = req.body;
+    const { name, fullName, email, password, username, contactNumber } = req.body;
     // console.log("emial is ", email)
 
     // basic code to check field is empty or not
@@ -97,7 +98,6 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // now upload images on cloudinary
-
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
@@ -110,6 +110,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // User.create creates the  filed in DB
 
     const user = await User.create({
+        name,
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
@@ -219,6 +220,8 @@ const logoutUser = asyncHandler(async (req, res) => {
         .clearCookie("refreshToken", cookieOptions)
         .json(new ApiResponse(200, {}, "User logged out successfully!"));
 });
+
+
 
 
 // export {registerUser}
