@@ -8,7 +8,7 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.service.js";
 import ApiResponse from "../utils/AppResponse.js";
 import jwt from "jsonwebtoken";
-import { use } from "react";
+import { response } from "express";
 
 // varibale for access token and refresh token
 const generatesAccessTokenAndRefreshToken = async (userId) => {
@@ -331,6 +331,37 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User details updated successfully"));
 });
 
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar image is required");
+  }
+
+  //now finally upload on cloudinary
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+  if (!avatar) {
+    throw new ApiError(500, "Something went wrong while uploading avatar");
+  }
+
+  await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+
+});
+
+
+
+
+
 // export {registerUser}
 export {
   registerUser,
@@ -340,4 +371,5 @@ export {
   changeCurrentPassword,
   getCurrentUser,
   updateAccountDetails,
+  updateUserAvatar,
 };
