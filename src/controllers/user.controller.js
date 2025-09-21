@@ -9,6 +9,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.service.js";
 import ApiResponse from "../utils/AppResponse.js";
 import jwt from "jsonwebtoken";
 import { response } from "express";
+import deleteOldImage from "../utils/deleteOldImage.js";
 
 // varibale for access token and refresh token
 const generatesAccessTokenAndRefreshToken = async (userId) => {
@@ -314,7 +315,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Name, fullName, and email are required.");
   }
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -360,8 +361,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, avatarUpdated, "Avatar updated successfully"));
 });
 
-
-
 const updateUserCoverImage = asyncHandler(async (req, res) => {
   // get local path of cover image
   const coverImageLocalPath = req.file?.path;
@@ -392,9 +391,63 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     );
 });
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
 
+  if (!username) {
+    throw new ApiError(400, "Username is required");
+  }
 
-
+  const channel = await User.aggregate([
+    {
+      $match: { username: username?.toLowerCase() }, // case insensitive match
+    },
+    {
+      $lookup: {
+        from: "subcriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subcribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subcriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subcribersCount: { $size: "$subcribers" },
+      },
+      channelsubscribedToCount: { $size: "$subscribedTo" },
+    },
+    {
+      isSubcribed: { $in: [req.user?._id, "$subcribers.subscriber"] },
+    },
+    {
+      $cond: {
+        if: { $in: [req.user?._id, "$subcribers.subscriber"] },
+        then: true,
+        else: false,
+      },
+    },{
+      $project: {
+        fullName: 1,
+        name: 1,
+        username: 1,
+        email: 1,
+        avatar: 1,
+        coverImage: 1,
+        subcribersCount: 1,
+        channelsubscribedToCount: 1,
+        isSubcribed: 1,
+      },
+    }
+  ]);
+});
 
 // export {registerUser}
 export {
@@ -407,4 +460,5 @@ export {
   updateAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
 };
