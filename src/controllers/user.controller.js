@@ -398,7 +398,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Username is required");
   }
 
-  const channel = await User.aggregate([
+  const Channel = await User.aggregate([
     {
       $match: { username: username?.toLowerCase() }, // case insensitive match
     },
@@ -447,16 +447,19 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
       },
     }
   ]);
+
+  if (!channel || channel.length === 0) {
+    throw new ApiError(404, "Channel not found with this username");
+  }
+  
+  return res 
+  .status(200)
+  .json(new ApiResponse(200, Channel[0], "Channel profile fetched successfully"));
 });
 
 
-if (!channel || channel.length === 0) {
-  throw new ApiError(404, "Channel not found with this username");
-}
 
-return res 
-  .status(200)
-  .json(new ApiResponse(200, channel[0], "Channel profile fetched successfully"));
+
 
 // export {registerUser}
 export {
