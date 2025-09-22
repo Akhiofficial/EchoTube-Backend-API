@@ -1,205 +1,227 @@
-# Pro Project - Backend API
+# Pro Project — Backend API
 
-Hey there! 👋 I'm a student learning backend development, and this is my project built while following the amazing tutorials from the **Chai and Code** YouTube channel. This project represents my journey into understanding Node.js, Express.js, MongoDB, and modern backend development practices.
+A Node.js/Express API built while following the Chai & Code series. It provides user authentication, file uploads (avatar/cover) to Cloudinary, and JWT-based session management with refresh tokens.
 
-## 🎯 What I Learned
+## Tech Stack
+- Node.js, Express.js
+- MongoDB, Mongoose
+- JWT, bcrypt
+- Multer (file uploads), Cloudinary
+- CORS, cookie-parser
+- Nodemon (dev)
 
-Through building this project, I explored:
-- **User Authentication**: How to create secure login/registration systems
-- **File Uploads**: Handling images with Multer and Cloudinary
-- **Database Management**: Working with MongoDB and Mongoose
-- **JWT Tokens**: Understanding authentication and authorization
-- **API Development**: Building RESTful APIs with proper error handling
-- **Security**: Password hashing, input validation, and CORS
+## Prerequisites
+- Node.js 18+
+- MongoDB Atlas or local MongoDB
+- Cloudinary account (for image uploads)
 
-## 🛠️ Technologies I Used
+## Getting Started
 
-As a student, I got hands-on experience with:
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - Object Data Modeling for MongoDB
-- **JWT** - JSON Web Tokens for authentication
-- **bcrypt** - Password hashing
-- **Multer** - File upload middleware
-- **Cloudinary** - Cloud image storage
-- **Nodemon** - Development server with auto-restart
-
-## 📁 My Project Structure
-
-Here's how I organized my code (following best practices I learned):
-
-```
-Pro_project_chai_code_backend/
-├── src/
-│   ├── controllers/          # Business logic for user operations
-│   ├── db/                   # Database connection setup
-│   ├── middlewears/          # Custom middleware functions
-│   ├── models/               # Database schemas and models
-│   ├── routes/               # API route definitions
-│   ├── utils/                # Helper functions and utilities
-│   ├── app.js                # Express app configuration
-│   └── index.js              # Server startup file
-├── public/                   # Static files and uploads
-└── package.json              # Project dependencies
-```
-
-## 🚀 How to Run My Project
-
-### Step 1: Setup
+### 1) Install
 ```bash
-# Clone my project
 git clone <repository-url>
 cd Pro_project_chai_code_backend
-
-# Install the packages I used
 npm install
 ```
 
-### Step 2: Environment Variables
-Create a `.env` file (I learned this is important for security!):
+### 2) Environment
+Create a `.env` file at the project root:
 ```env
 PORT=8000
 MONGO_URI=your_mongodb_connection_string
 CORS_ORIGIN=http://localhost:3000
 
-# JWT Secrets (I learned these should be kept secret!)
+# JWT
 ACCESS_TOKEN_SECRET=your_access_token_secret
 REFRESH_TOKEN_SECRET=your_refresh_token_secret
 ACCESS_TOKEN_EXPIRES_IN=1d
 REFRESH_TOKEN_EXPIRES_IN=10d
 
-# Cloudinary (for image uploads)
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-### Step 3: Start the Server
+### 3) Run
 ```bash
 npm run dev
 ```
+- Server: `http://localhost:8000`
 
-The server will start on `http://localhost:8000` 
+## API Overview
 
-##  What My API Can Do
+Base URL: `/api/v1/users`
 
-### User Registration
+- POST `/register` — Register a user with avatar/optional cover image
+- POST `/login` — Login with email or username and password
+- POST `/logout` — Logout (requires valid access token)
+- POST `/refresh-token` — Refresh access token using refresh token
+
+Additional (secured) features implemented in controllers (route bindings may be added later):
+- Change current password
+- Get current user
+- Update account details
+- Update avatar
+- Update cover image
+- Get channel profile by username
+
+## Endpoints
+
+### Register
+POST `/api/v1/users/register`
+- Content-Type: `multipart/form-data`
+- Fields:
+  - text: `fullName` (required), `email` (required), `password` (required), `username` (required), `name` (optional), `contactNumber` (optional)
+  - files: `avatar` (required, 1 file), `coverImage` (optional, 1 file)
+
+Example (curl):
 ```bash
-POST /api/v1/users/register
+curl -X POST http://localhost:8000/api/v1/users/register \
+  -F "fullName=John Doe" \
+  -F "email=john@example.com" \
+  -F "password=StrongPass123!" \
+  -F "username=johnny" \
+  -F "avatar=@./path/to/avatar.jpg" \
+  -F "coverImage=@./path/to/cover.jpg"
 ```
-- Register with name, email, password, username
-- Upload avatar and cover images
-- Validates all inputs
-- Checks for existing users
 
-### User Login
-```bash
-POST /api/v1/users/login
+### Login
+POST `/api/v1/users/login`
+- Body (JSON):
+```json
+{
+  "email": "john@example.com",
+  "password": "StrongPass123!"
+}
 ```
-- Login with email/username and password
-- Returns JWT tokens
-- Sets secure cookies
-
-### User Logout
-```bash
-POST /api/v1/users/logout
+- or
+```json
+{
+  "username": "johnny",
+  "password": "StrongPass123!"
+}
 ```
-- Clears authentication tokens
-- Requires valid JWT token
+- Response sets `accessToken` and `refreshToken` as httpOnly cookies (and returns them in body).
 
-### Refresh Token
-```bash
-POST /api/v1/users/refresh-token
+### Logout
+POST `/api/v1/users/logout`
+- Requires valid access token (JWT in cookie).
+- Clears `accessToken` and `refreshToken` cookies and removes stored refresh token.
+
+### Refresh Access Token
+POST `/api/v1/users/refresh-token`
+- Send refresh token via cookie `refreshToken` or JSON body:
+```json
+{ "refreshToken": "<your-refresh-token>" }
 ```
-- Get new access token using refresh token
-- Extends user session
+- Returns new `accessToken` and rotated `refreshToken` (httpOnly cookies and in body).
 
-## 🔍 Key Features I Implemented
+## Testing with Postman
 
-### 1. User Authentication System
-- **Registration**: Full user signup with image uploads
-- **Login**: Secure authentication with JWT
-- **Password Security**: Bcrypt hashing (I learned this is crucial!)
-- **Token Management**: Access and refresh tokens
+### Quick Setup
+- Create a Postman environment with:
+  - `baseUrl`: `http://localhost:8000`
+- Ensure “Automatically follow redirects” and “Enable cookie management” are ON (Postman manages httpOnly cookies in its cookie jar).
 
-### 2. File Upload System
-- **Multer Middleware**: Handles file uploads
-- **Cloudinary Integration**: Stores images in the cloud
-- **Image Validation**: Ensures proper file types
+### 1) Register (multipart/form-data)
+- Method: POST
+- URL: `{{baseUrl}}/api/v1/users/register`
+- Body: form-data
+  - Key: `fullName` (text)
+  - Key: `email` (text)
+  - Key: `password` (text)
+  - Key: `username` (text)
+  - Key: `avatar` (file) → choose an image
+  - Key: `coverImage` (file, optional)
 
-### 3. Database Design
-- **User Model**: Complete user schema with timestamps
-- **Relationships**: Watch history for future video features
-- **Validation**: Mongoose schema validation
+Tip: Ensure each file field is set to “File” type in Postman.
 
-### 4. Error Handling
-- **Custom Error Classes**: Proper error responses
-- **Async Handler**: Catches async function errors
-- **Input Validation**: Prevents bad data
+### 2) Login
+- Method: POST
+- URL: `{{baseUrl}}/api/v1/users/login`
+- Body: raw → JSON:
+```json
+{
+  "email": "john@example.com",
+  "password": "StrongPass123!"
+}
+```
+- On success, Postman stores `accessToken` and `refreshToken` as httpOnly cookies in its cookie jar.
 
-## 🎓 My Learning Journey
+Optional (Tests tab) — capture tokens from JSON body (if you want them as env vars):
+```js
+pm.test("Saved tokens to env", function () {
+  const data = pm.response.json();
+  if (data?.data?.accessToken) pm.environment.set("accessToken", data.data.accessToken);
+  if (data?.data?.refreshToken) pm.environment.set("refreshToken", data.data.refreshToken);
+});
+```
 
-### What I Found Challenging
-- Understanding JWT token flow
-- Setting up proper error handling
-- Managing file uploads with Multer
-- Database relationships and queries
+### 3) Authenticated Requests
+- Since the API uses cookies, you typically don’t need an `Authorization` header.
+- Verify cookies:
+  - Click “Cookies” (under Send) → check `localhost` has `accessToken` and `refreshToken`.
 
-### What I Enjoyed Learning
-- Building a complete authentication system
-- Working with cloud services (Cloudinary)
-- Understanding middleware concepts
-- API design and RESTful principles
+If you prefer headers (not required here), you could add:
+```
+Authorization: Bearer {{accessToken}}
+```
+…but this codebase expects cookies.
 
-### Key Concepts I Grasped
-- **Middleware**: Functions that run between request and response
-- **JWT**: Stateless authentication tokens
-- **MVC Pattern**: Model-View-Controller architecture
-- **Async/Await**: Modern JavaScript for handling promises
-- **Environment Variables**: Keeping secrets secure
+### 4) Refresh Token
+- Method: POST
+- URL: `{{baseUrl}}/api/v1/users/refresh-token`
+- Body: none (cookies are sufficient). Alternatively:
+```json
+{ "refreshToken": "{{refreshToken}}" }
+```
 
-## 🎯 Future Learning Goals
+### 5) Logout
+- Method: POST
+- URL: `{{baseUrl}}/api/v1/users/logout`
+- Cookies must be present; Postman will send them automatically.
 
-As I continue my learning journey, I want to explore:
-- **Testing**: Unit and integration tests
-- **Deployment**: Deploying to cloud platforms
-- **Advanced Features**: Real-time communication, caching
-- **Performance**: Database optimization, API rate limiting
+### Troubleshooting
+- If refresh returns 404, ensure the route path includes a leading slash:
+  - In `src/routes/user.routes.js` use `router.route("/refresh-token")`.
+- If cookies aren’t sent:
+  - Check Postman’s “Cookies” for `localhost`.
+  - Make sure you’re staying on the same `baseUrl` and port.
+- For HTTPS-only environments, set `secure: true` in cookie options and test over `https://`.
 
-## 🙏 Acknowledgments
+## Security Notes
+- Cookies:
+  - Login: `httpOnly: true`, `secure: false` by default in code (use `secure: true` in production with HTTPS)
+  - Logout/Refresh: uses `secure: true` — set according to your environment
+- CORS: `CORS_ORIGIN` defaults to `*` if not provided; lock this down for production.
+- Body size limits: JSON and URL-encoded set to `10kb`.
 
-**Huge thanks to Chai and Code YouTube channel!** 🎥
-- Their step-by-step tutorials made complex concepts easy to understand
-- The practical approach helped me build real-world applications
-- Their teaching style is perfect for beginners like me
+## Project Structure
+```
+src/
+  controllers/      # Business logic
+  db/               # Database connection
+  middlewears/      # Auth & Multer
+  models/           # Mongoose schemas
+  routes/           # Express routes
+  utils/            # Helpers & services
+  app.js            # Express app config
+  index.js          # Server bootstrap
+public/             # Static/uploads
+```
 
-##  Resources That Helped Me
+## Scripts
+- `npm run dev` — Start dev server with dotenv and nodemon
 
-- **Chai and Code YouTube Channel** - Main learning resource
-- **Express.js Documentation** - Understanding middleware and routing
-- **MongoDB Documentation** - Database operations and Mongoose
-- **JWT.io** - Understanding JSON Web Tokens
+## Known Issues / Notes
+- Route path typo: in `src/routes/user.routes.js`, `router.route("refresh-token")` is missing the leading slash. Update to:
+  ```js
+  router.route("/refresh-token").post(refreshAccessToken);
+  ```
+- Validation edge cases in controller:
+  - `loginUser` query uses `$or: [{ email, username }]`; should be `$or: [{ email }, { username }]`.
+  - Some checks and variable names may need small corrections for robustness in production.
 
-## 💡 Tips for Fellow Students
-
-1. **Start Small**: Don't try to understand everything at once
-2. **Practice Regularly**: Build small projects to reinforce concepts
-3. **Read Documentation**: Official docs are your best friend
-4. **Join Communities**: Discord, Reddit, Stack Overflow
-5. **Build Projects**: Apply what you learn in real projects
-
-## 🎓 Student Notes
-
-This project is part of my backend development learning journey. I'm sharing it to:
-- Document my learning progress
-- Help other students understand the concepts
-- Get feedback from the community
-- Build a portfolio of my work
-
----
-
-**Student Developer** 👨‍🎓  
-*Learning Backend Development with Chai and Code*
-
-*P.S. If you're also learning backend development, feel free to reach out! We can learn together! 🚀*
+## Acknowledgments
+Inspired by the Chai & Code YouTube channel and built as part of a backend learning journey.
