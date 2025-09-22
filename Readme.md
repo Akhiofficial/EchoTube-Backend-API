@@ -1,6 +1,6 @@
-# Pro Project — Backend API
+# EchoTube — Backend API
 
-A Node.js/Express API built while following the Chai & Code series. It provides user authentication, file uploads (avatar/cover) to Cloudinary, and JWT-based session management with refresh tokens.
+A Node.js/Express API built while following the Chai aur Code series. It provides user authentication, file uploads (avatar/cover) to Cloudinary, and JWT-based session management with refresh tokens.
 
 ## Tech Stack
 - Node.js, Express.js
@@ -224,4 +224,5 @@ public/             # Static/uploads
   - Some checks and variable names may need small corrections for robustness in production.
 
 ## Acknowledgments
-Inspired by the Chai & Code YouTube channel and built as part of a backend learning journey.
+- Built as part of a backend learning journey inspired by the Chai aur Code YouTube channel.
+- Special thanks to Chai aur Code for clear explanations and practical, project-focused guidance.
