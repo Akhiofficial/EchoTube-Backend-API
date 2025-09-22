@@ -19,8 +19,11 @@ A Node.js/Express API built while following the Chai aur Code series. It provide
 
 ### 1) Install
 ```bash
-git clone <repository-url>
-cd Pro_project_chai_code_backend
+# Clone
+git clone <repository-url> echotube-backend
+cd echotube-backend
+
+# Install
 npm install
 ```
 
