@@ -10,6 +10,8 @@ import ApiResponse from "../utils/AppResponse.js";
 import jwt from "jsonwebtoken";
 import { response } from "express";
 import deleteOldImage from "../utils/deleteOldImage.js";
+import mongoose from "mongoose";
+import { use } from "react";
 
 // varibale for access token and refresh token
 const generatesAccessTokenAndRefreshToken = async (userId) => {
@@ -433,7 +435,8 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         then: true,
         else: false,
       },
-    },{
+    },
+    {
       $project: {
         fullName: 1,
         name: 1,
@@ -445,21 +448,66 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         channelsubscribedToCount: 1,
         isSubcribed: 1,
       },
-    }
+    },
   ]);
 
   if (!channel || channel.length === 0) {
     throw new ApiError(404, "Channel not found with this username");
   }
-  
-  return res 
-  .status(200)
-  .json(new ApiResponse(200, Channel[0], "Channel profile fetched successfully"));
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, Channel[0], "Channel profile fetched successfully")
+    );
 });
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const userAgg = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "ownerDetails",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              ownerDetails: { $first: "$ownerDetails" },
+            },
+          },
+        ],
+      },
+    },
+  ]);
 
-
-
+  const result = userAgg?.[0]?.watchHistory || [];
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "Watch history fetched successfully"));
+});
 
 // export {registerUser}
 export {
